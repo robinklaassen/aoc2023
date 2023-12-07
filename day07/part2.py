@@ -1,0 +1,86 @@
+import functools
+from collections import Counter
+from copy import  deepcopy
+
+from utils import read_input
+
+SINGLE_CARD_STRENGTH = ["J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
+
+
+@functools.total_ordering
+class Hand:
+    def __init__(self, line: str):
+        cards, bid = line.split(" ")
+        self.cards: list[str] = list(cards)
+        self.bid: int = int(bid)
+
+    @property
+    def cards_type(self) -> int:
+        if self.cards == "JJJJJ":
+            return 7
+
+        count = Counter(self.cards)
+        amended_count = deepcopy(count)
+
+        if "J" in self.cards:
+            for c, num in count.most_common():
+                if c == "J":
+                    continue
+                amended_count[c] += count["J"]
+                del amended_count["J"]
+                break
+
+        amended_counts = list(amended_count.values())
+
+        match sorted(amended_counts, reverse=True):
+            case [5]:
+                return 7
+            case [4, 1]:
+                return 6
+            case [3, 2]:
+                return 5
+            case [3, 1, 1]:
+                return 4
+            case [2, 2, 1]:
+                return 3
+            case [2, 1, 1, 1]:
+                return 2
+            case [1, 1, 1, 1, 1]:
+                return 1
+            case _:
+                raise Exception("wtf")
+
+    def __lt__(self, other):
+        if self.cards_type < other.cards_type:
+            return True
+        if self.cards_type == other.cards_type:
+            for i in range(5):
+                self_card = self.cards[i]
+                other_card = other.cards[i]
+                if SINGLE_CARD_STRENGTH.index(self_card) < SINGLE_CARD_STRENGTH.index(other_card):
+                    return True
+                if SINGLE_CARD_STRENGTH.index(self_card) > SINGLE_CARD_STRENGTH.index(other_card):
+                    return False
+        return False
+
+    def __eq__(self, other):
+        return sorted(self.cards) == sorted(other.cards)
+
+
+def total_winnings(lines: list[str]) -> int:
+    hands = [Hand(line) for line in lines]
+    hands = sorted(hands)
+    print([hand.cards for hand in hands])
+
+    winnings = 0
+    for idx, hand in enumerate(hands):
+        winnings += (idx + 1) * hand.bid
+    return winnings
+
+
+if __name__ == "__main__":
+    test_lines = read_input("test_input.txt")
+    assert total_winnings(test_lines) == 5905
+
+    input_lines = read_input("input.txt")
+    print(total_winnings(input_lines))
