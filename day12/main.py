@@ -13,6 +13,15 @@ def possible_configs(line: str) -> int:
     return sum(1 for conf in generate_configs(spring) if config_is_valid(conf, validation))
 
 
+def possible_configs_extended(line: str) -> int:
+    spring, valid_str = line.split(" ")
+    spring_ext = "?".join([spring] * 5)
+    valid_str_ext = ",".join([valid_str] * 5)
+    validation_ext = [int(i) for i in valid_str_ext.split(",")]
+
+    return sum(1 for conf in generate_configs(spring_ext) if config_is_valid(conf, validation_ext))
+
+
 def generate_configs(spring: str) -> list[str]:
     configs: list[str] = [""]
     for char in spring:
@@ -28,6 +37,14 @@ def part1(lines: list[str]) -> int:
     return sum(possible_configs(line) for line in lines)
 
 
+def part2(lines: list[str]) -> int:
+    total = 0
+    for idx, line in enumerate(lines):
+        print(f"{idx} / {len(lines)}")
+        total += possible_configs_extended(line)
+    return total
+
+
 if __name__ == "__main__":
     assert config_is_valid("#.#.###", [1, 1, 3])
 
@@ -41,4 +58,5 @@ if __name__ == "__main__":
 
     # part 2: bigger numbers, who would've thunk? can't brute force my way out of this probably
     # repeat the exercise with spring *= 5 and validation *= 5
-    pass
+    assert part2(test_lines) == 525152
+    print(part2(input_lines))
