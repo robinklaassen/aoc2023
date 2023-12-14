@@ -17,3 +17,11 @@ def generate_grids(lines: list[str], sep="") -> Iterator[list[str]]:
         else:
             grid.append(line)
     yield grid
+
+
+def transpose_grid(lines: list[str]) -> list[str]:
+    return ["".join(list(tup)) for tup in zip(*lines)]
+
+
+def find_indexes(s: str, ch: str) -> list[int]:
+    return [i for i, ltr in enumerate(s) if ltr == ch]
