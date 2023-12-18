@@ -10,10 +10,9 @@ DIRECTIONS = {
 }
 
 
-def part1(lines: list[str]) -> int:
+def dig_trench(lines: list[str]) -> list[Point]:
     x, y = 0, 0
     grid: list[Point] = [(x, y)]
-
     # dig out trench
     for line in lines:
         step_dir, step_count, color = line.split(" ")
@@ -22,9 +21,27 @@ def part1(lines: list[str]) -> int:
             x += dx
             y += dy
             grid.append((x, y))
+    return grid
 
-    # print(grid)
 
+def dig_bigger_trench(lines: list[str]) -> list[Point]:
+    x, y = 0, 0
+    grid: list[Point] = [(x, y)]
+    # dig out trench
+    for line in lines:
+        hex_code = line.split("#")[1].rstrip(")")
+        step_count = int(hex_code[:-1], 16)
+        step_dir = ["R", "D", "L", "U"][int(hex_code[-1])]
+
+        dx, dy = DIRECTIONS[step_dir]
+        for _ in range(int(step_count)):
+            x += dx
+            y += dy
+            grid.append((x, y))
+    return grid
+
+
+def determine_volume(grid: list[Point]) -> int:
     # determine corners
     min_x = min(x for x, y in grid)
     min_y = min(y for x, y in grid)
@@ -32,6 +49,7 @@ def part1(lines: list[str]) -> int:
     max_y = max(y for x, y in grid)
 
     volume = 0
+
     for y in range(min_y, max_y + 1):
         inside = False
         prev_corner_dir = None
@@ -83,7 +101,22 @@ def part1(lines: list[str]) -> int:
 
             prev_corner_dir = None
 
-        print(line)
+        # print(line)
+    return volume
+
+
+def part1(lines: list[str]) -> int:
+    grid = dig_trench(lines)
+
+    volume = determine_volume(grid)
+
+    return volume
+
+
+def part2(lines: list[str]) -> int:
+    grid = dig_bigger_trench(lines)
+
+    volume = determine_volume(grid)
 
     return volume
 
@@ -94,3 +127,5 @@ if __name__ == "__main__":
 
     input_lines = read_input("input.txt")
     print(part1(input_lines))
+
+    assert part2(test_lines) == 952408144115  # nope does not perform, as expected
