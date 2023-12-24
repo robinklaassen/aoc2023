@@ -161,3 +161,6 @@ cython_debug/
 
 # Ignore all txt files because they are personalized inputs
 *.txt
+
+# Ignore html output (sigma graphs)
+*.html
